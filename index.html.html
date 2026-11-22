@@ -3413,3 +3413,22 @@
       if (status === 'Rejected') return 'bg-red-100 text-red-800';
       return 'bg-amber-100 text-amber-800';
     }
+<!-- Footer with Hidden "!" Admin Button -->
+<footer class="bg-navy-900 text-slate-300 border-t border-slate-800 mt-auto no-print">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+    <p>&copy; <span id="footer-year">2026</span> Awan Academy. All rights reserved.</p>
+    <div class="flex items-center gap-4">
+      <span>Improvement Crash Half Length Registration Portal</span>
+      <button
+        type="button"
+        id="admin-secret-trigger"
+        onclick="openAdminPortal()"
+        title="Admin Access"
+        aria-label="Admin Access"
+        class="w-7 h-7 rounded-full bg-slate-800 hover:bg-royal-600 text-slate-300 hover:text-white font-extrabold text-xs flex items-center justify-center border border-slate-600 transition cursor-pointer"
+      >
+        !
+      </button>
+    </div>
+  </div>
+</footer>
