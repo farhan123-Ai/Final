@@ -121,7 +121,7 @@
           <button type="button" id="nav-status" onclick="navigateTo('status')" class="px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
             Check Status
           </button>
-          <button type="button" id="nav-admin-badge" onclick="navigateTo('admin')" class="hidden px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30">
+          <button type="button" id="nav-admin-badge" onclick="openAdminPortal()" class="hidden px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30">
             Admin Panel
           </button>
         </nav>
@@ -537,7 +537,7 @@
             <div>
               <h3 class="text-lg font-extrabold text-emerald-950">Registration Submitted Successfully!</h3>
               <p class="text-sm text-emerald-800 mt-0.5">
-                Your application is currently <strong>Pending</strong> until the administrator verifies your payment receipt. Save your Registration ID below.
+                Save your Registration ID below and check your status anytime in the <strong>Check Status</strong> tab.
               </p>
             </div>
           </div>
@@ -610,7 +610,7 @@
     <!-- ==================== VIEW 2: CHECK STATUS ==================== -->
     <div id="view-status" class="hidden fade-in max-w-2xl mx-auto bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8">
       <h2 class="text-xl font-bold text-navy-900">Check Registration Status</h2>
-      <p class="text-sm text-slate-500 mt-1">Enter your Registration Number or Roll Number to check current verification status.</p>
+      <p class="text-sm text-slate-500 mt-1">Enter your Registration Number or Roll Number to check approval and fee verification status.</p>
       <div class="mt-5 flex flex-col sm:flex-row gap-3">
         <input
           type="text"
@@ -630,25 +630,181 @@
     </div>
 
     <!-- ==================== VIEW 3: ADMIN PANEL ==================== -->
-    <div id="view-admin" class="hidden fade-in bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8">
-      <h2 class="text-xl font-bold text-navy-900">Administrator Dashboard</h2>
-      <p class="text-sm text-slate-500 mt-1">Manage registrations, referral codes, and fee settings.</p>
-      <div id="admin-records-container" class="mt-6 text-sm text-slate-600">
-        No records loaded yet.
+    <div id="view-admin" class="hidden fade-in space-y-6">
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-navy-900">Administrator Dashboard</h2>
+          <p class="text-sm text-slate-500 mt-1">Verify student payments, approve or reject registrations, configure fees, and manage referral codes.</p>
+        </div>
+        <button
+          type="button"
+          onclick="lockAdminPortal()"
+          class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider transition self-start sm:self-center"
+        >
+          Lock Admin Panel
+        </button>
+      </div>
+
+      <!-- Admin Configuration Grid: Fee & Payment Settings + Referral Code Management -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Fee & Payment Settings Card -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-4">
+          <h3 class="text-base font-bold text-navy-900 border-b border-slate-200 pb-3">Fee &amp; Payment Settings</h3>
+          <div>
+            <label for="admin-fee-amount" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Standard Registration Fee (PKR)
+            </label>
+            <input
+              type="number"
+              id="admin-fee-amount"
+              min="0"
+              step="50"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 font-mono text-navy-900 focus:ring-2 focus:ring-royal-600 outline-none"
+            />
+          </div>
+          <div>
+            <label for="admin-payment-title" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Payment Method Heading
+            </label>
+            <input
+              type="text"
+              id="admin-payment-title"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-navy-900 focus:ring-2 focus:ring-royal-600 outline-none"
+            />
+          </div>
+          <div>
+            <label for="admin-payment-instructions" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Payment Account Instructions
+            </label>
+            <textarea
+              id="admin-payment-instructions"
+              rows="3"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-navy-900 text-sm focus:ring-2 focus:ring-royal-600 outline-none"
+            ></textarea>
+          </div>
+          <div class="pt-2 border-t border-slate-100">
+            <label for="admin-new-pin" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Admin PIN (4–8 Digits)
+            </label>
+            <input
+              type="password"
+              id="admin-new-pin"
+              maxlength="8"
+              placeholder="Leave blank to keep current PIN"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 font-mono text-navy-900 focus:ring-2 focus:ring-royal-600 outline-none"
+            />
+          </div>
+          <button
+            type="button"
+            onclick="saveAdminSettings()"
+            class="w-full py-3 px-4 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold text-sm transition"
+          >
+            Save Fee &amp; Payment Settings
+          </button>
+        </div>
+
+        <!-- Referral Code Management Card -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-4">
+          <h3 class="text-base font-bold text-navy-900 border-b border-slate-200 pb-3">Referral Code Management (100% Fee Waiver)</h3>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="admin-new-referral-input"
+              placeholder="e.g., MERIT2026"
+              class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 font-mono uppercase text-navy-900 focus:ring-2 focus:ring-royal-600 outline-none"
+            />
+            <button
+              type="button"
+              onclick="addReferralCode()"
+              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shrink-0"
+            >
+              Add Code
+            </button>
+          </div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Active Referral Codes</p>
+            <div id="admin-referral-list" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Registrations Management List -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-bold text-navy-900">Submitted Student Registrations</h3>
+          <span id="admin-total-count" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">0 Records</span>
+        </div>
+        <div id="admin-records-container" class="space-y-4 text-sm text-slate-600">
+          No records loaded yet.
+        </div>
       </div>
     </div>
   </main>
+
+  <!-- Admin PIN Modal -->
+  <div id="admin-pin-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-6 space-y-4 fade-in">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-navy-900">Admin PIN Verification</h3>
+        <button type="button" onclick="closeAdminPinModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg leading-none">&times;</button>
+      </div>
+      <p class="text-xs text-slate-500">Enter the administrator PIN to access settings, referrals, and registration approvals.</p>
+      <div>
+        <label for="admin-pin-input" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">PIN Code</label>
+        <input
+          type="password"
+          id="admin-pin-input"
+          maxlength="8"
+          placeholder="Enter PIN (default: 1234)"
+          class="w-full px-4 py-3 rounded-xl border border-slate-300 font-mono text-navy-900 focus:ring-2 focus:ring-royal-600 outline-none"
+        />
+        <p id="admin-pin-error" class="hidden text-xs font-semibold text-red-600 mt-1.5"></p>
+      </div>
+      <div class="flex gap-2.5 pt-1">
+        <button
+          type="button"
+          onclick="closeAdminPinModal()"
+          class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onclick="verifyAdminPin()"
+          class="flex-1 py-2.5 px-4 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold text-sm shadow"
+        >
+          Unlock Panel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Screenshot Lightbox Modal -->
+  <div id="screenshot-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 id="screenshot-modal-title" class="text-sm font-extrabold text-navy-900">Payment Screenshot</h3>
+        <button type="button" onclick="closeScreenshotModal()" class="text-slate-500 hover:text-slate-900 font-bold text-lg leading-none">&times;</button>
+      </div>
+      <div class="bg-slate-100 rounded-xl p-3 flex items-center justify-center max-h-[70vh] overflow-auto">
+        <img id="screenshot-modal-img" src="" alt="Submitted Payment Receipt" class="max-w-full max-h-[62vh] object-contain rounded-lg" />
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="bg-navy-900 text-slate-300 py-6 border-t border-slate-800 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
       <p>&copy; 2026 Awan Academy. All rights reserved.</p>
-      <p class="text-slate-400">Shortcut: <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono">Ctrl + Shift + A</kbd> to open Admin Panel</p>
+      <p class="text-slate-400">
+        Shortcut: <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono">Ctrl + Shift + A</kbd> to open Admin Panel
+      </p>
     </div>
   </footer>
 
   <script>
     const STORAGE_KEY = 'awan_academy_registrations_v1';
+    const SETTINGS_KEY = 'awan_academy_admin_settings_v1';
 
     const SUBJECT_CATALOG = [
       { code: 'PHY-101', name: 'Physics' },
@@ -659,17 +815,76 @@
       { code: 'CS-106', name: 'Computer Science' },
     ];
 
-    const VALID_REFERRAL_CODES = ['AWAN100', 'CRASHFREE', 'VIP2026'];
+    const DEFAULT_ADMIN_SETTINGS = {
+      pin: '1234',
+      feeAmount: 1500,
+      paymentMethodTitle: 'Bank / Mobile Wallet Transfer Details',
+      paymentInstructions:
+        'Account Title: Awan Academy Exam Cell\nBank / Wallet: Meezan Bank / JazzCash / EasyPaisa\nAccount / IBAN: PK00MEZN0000000000000000\nNote: Include your Registration Number in the transfer description.',
+      referralCodes: ['AWAN100', 'CRASHFREE', 'VIP2026'],
+    };
 
     const appState = {
       currentView: 'register',
       currentStep: 1,
+      adminAuthenticated: false,
       referralVerified: false,
       appliedReferralCode: '',
       studentPhotoDataUrl: '',
       paymentScreenshotDataUrl: '',
       activeRegistration: null,
+      settings: { ...DEFAULT_ADMIN_SETTINGS },
     };
+
+    function readAdminSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return { ...DEFAULT_ADMIN_SETTINGS };
+        const parsed = JSON.parse(raw);
+        return {
+          pin: typeof parsed.pin === 'string' && parsed.pin.trim() ? parsed.pin.trim() : DEFAULT_ADMIN_SETTINGS.pin,
+          feeAmount: Number.isFinite(Number(parsed.feeAmount)) && Number(parsed.feeAmount) >= 0
+            ? Number(parsed.feeAmount)
+            : DEFAULT_ADMIN_SETTINGS.feeAmount,
+          paymentMethodTitle: typeof parsed.paymentMethodTitle === 'string' && parsed.paymentMethodTitle.trim()
+            ? parsed.paymentMethodTitle.trim()
+            : DEFAULT_ADMIN_SETTINGS.paymentMethodTitle,
+          paymentInstructions: typeof parsed.paymentInstructions === 'string' && parsed.paymentInstructions.trim()
+            ? parsed.paymentInstructions
+            : DEFAULT_ADMIN_SETTINGS.paymentInstructions,
+          referralCodes: Array.isArray(parsed.referralCodes) && parsed.referralCodes.length > 0
+            ? parsed.referralCodes.map((c) => String(c).trim().toUpperCase()).filter(Boolean)
+            : [...DEFAULT_ADMIN_SETTINGS.referralCodes],
+        };
+      } catch (err) {
+        console.error('Failed to read admin settings:', err);
+        return { ...DEFAULT_ADMIN_SETTINGS };
+      }
+    }
+
+    function saveAdminSettingsToStorage(nextSettings) {
+      appState.settings = { ...nextSettings };
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(appState.settings));
+      applySettingsToUI();
+    }
+
+    function applySettingsToUI() {
+      updateFeeDisplay();
+
+      const methodTitleEl = document.getElementById('display-payment-method-title');
+      const instructionsEl = document.getElementById('display-payment-instructions');
+      if (methodTitleEl) methodTitleEl.textContent = appState.settings.paymentMethodTitle;
+      if (instructionsEl) instructionsEl.textContent = appState.settings.paymentInstructions;
+
+      const feeInput = document.getElementById('admin-fee-amount');
+      const titleInput = document.getElementById('admin-payment-title');
+      const instInput = document.getElementById('admin-payment-instructions');
+      if (feeInput) feeInput.value = String(appState.settings.feeAmount);
+      if (titleInput) titleInput.value = appState.settings.paymentMethodTitle;
+      if (instInput) instInput.value = appState.settings.paymentInstructions;
+
+      renderAdminReferralCodes();
+    }
 
     function generateRegistrationNumber() {
       const randomPart = Math.floor(1000 + Math.random() * 9000);
@@ -697,6 +912,11 @@
     }
 
     function navigateTo(viewName) {
+      if (viewName === 'admin' && !appState.adminAuthenticated) {
+        openAdminPinModal();
+        return;
+      }
+
       appState.currentView = viewName;
 
       const views = {
@@ -730,11 +950,81 @@
           : 'px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800';
       }
 
-      if (navAdmin && viewName === 'admin') {
-        navAdmin.classList.remove('hidden');
+      if (navAdmin) {
+        if (appState.adminAuthenticated) {
+          navAdmin.classList.remove('hidden');
+        }
+        navAdmin.className = viewName === 'admin'
+          ? 'px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amber-500 text-navy-900 shadow-sm'
+          : (appState.adminAuthenticated
+              ? 'px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+              : 'hidden');
+      }
+
+      if (viewName === 'admin') {
+        applySettingsToUI();
         renderAdminRecords();
       }
     }
+
+    function openAdminPinModal() {
+      const modal = document.getElementById('admin-pin-modal');
+      const input = document.getElementById('admin-pin-input');
+      const errorEl = document.getElementById('admin-pin-error');
+      if (errorEl) {
+        errorEl.classList.add('hidden');
+        errorEl.textContent = '';
+      }
+      if (input) {
+        input.value = '';
+      }
+      if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => input?.focus(), 50);
+      }
+    }
+
+    function closeAdminPinModal() {
+      const modal = document.getElementById('admin-pin-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function verifyAdminPin() {
+      const input = document.getElementById('admin-pin-input');
+      const errorEl = document.getElementById('admin-pin-error');
+      if (!input) return;
+
+      const enteredPin = input.value.trim();
+      if (enteredPin === appState.settings.pin) {
+        appState.adminAuthenticated = true;
+        closeAdminPinModal();
+        const navAdmin = document.getElementById('nav-admin-badge');
+        if (navAdmin) navAdmin.classList.remove('hidden');
+        navigateTo('admin');
+        showToast('Admin panel unlocked.', 'success');
+      } else if (errorEl) {
+        errorEl.textContent = 'Incorrect PIN. Please try again.';
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function lockAdminPortal() {
+      appState.adminAuthenticated = false;
+      const navAdmin = document.getElementById('nav-admin-badge');
+      if (navAdmin) navAdmin.classList.add('hidden');
+      navigateTo('register');
+      showToast('Admin panel locked.', 'info');
+    }
+
+    window.openAdminPortal = function openAdminPortal() {
+      if (appState.adminAuthenticated) {
+        navigateTo('admin');
+      } else {
+        openAdminPinModal();
+      }
+    };
 
     function setRegistrationStep(step) {
       appState.currentStep = step;
@@ -880,8 +1170,14 @@
       reader.readAsDataURL(file);
     }
 
+    function formatPKR(amount) {
+      return `PKR ${Number(amount || 0).toLocaleString('en-US')}`;
+    }
+
     function updateFeeDisplay() {
-      const feeText = appState.referralVerified ? 'PKR 0 (100% Waived)' : 'PKR 1,500';
+      const feeText = appState.referralVerified
+        ? 'PKR 0 (100% Waived)'
+        : formatPKR(appState.settings.feeAmount);
       const badgeText = appState.referralVerified ? 'Referral Waiver Applied' : 'Standard Registration Fee';
 
       const step1Fee = document.getElementById('step1-fee-display');
@@ -901,7 +1197,7 @@
       const code = input.value.trim().toUpperCase();
       statusEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200', 'bg-red-50', 'text-red-700', 'border-red-200');
 
-      if (VALID_REFERRAL_CODES.includes(code)) {
+      if (code && appState.settings.referralCodes.includes(code)) {
         appState.referralVerified = true;
         appState.appliedReferralCode = code;
         statusEl.textContent = `Referral code "${code}" verified — 100% fee waiver applied.`;
@@ -918,6 +1214,94 @@
       updateFeeDisplay();
     }
 
+    function saveAdminSettings() {
+      const feeInput = document.getElementById('admin-fee-amount');
+      const titleInput = document.getElementById('admin-payment-title');
+      const instInput = document.getElementById('admin-payment-instructions');
+      const newPinInput = document.getElementById('admin-new-pin');
+
+      const parsedFee = Number(feeInput?.value);
+      const feeAmount = Number.isFinite(parsedFee) && parsedFee >= 0 ? parsedFee : appState.settings.feeAmount;
+      const paymentMethodTitle = titleInput?.value.trim() || appState.settings.paymentMethodTitle;
+      const paymentInstructions = instInput?.value.trim() || appState.settings.paymentInstructions;
+      const rawNewPin = newPinInput?.value.trim() || '';
+
+      let nextPin = appState.settings.pin;
+      if (rawNewPin) {
+        if (!/^\d{4,8}$/.test(rawNewPin)) {
+          showToast('Admin PIN must be 4 to 8 digits.', 'error');
+          return;
+        }
+        nextPin = rawNewPin;
+      }
+
+      saveAdminSettingsToStorage({
+        ...appState.settings,
+        pin: nextPin,
+        feeAmount,
+        paymentMethodTitle,
+        paymentInstructions,
+      });
+
+      if (newPinInput) newPinInput.value = '';
+      showToast('Fee and payment settings saved.', 'success');
+    }
+
+    function renderAdminReferralCodes() {
+      const listEl = document.getElementById('admin-referral-list');
+      if (!listEl) return;
+
+      if (!appState.settings.referralCodes.length) {
+        listEl.innerHTML = '<span class="text-xs text-slate-400">No active referral codes.</span>';
+        return;
+      }
+
+      listEl.innerHTML = appState.settings.referralCodes
+        .map(
+          (code) => `
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-xs font-mono font-bold text-royal-800">
+            <span>${code}</span>
+            <button type="button" onclick="removeReferralCode('${code}')" class="text-red-600 hover:text-red-800 font-sans font-extrabold leading-none" title="Remove code">&times;</button>
+          </span>
+        `
+        )
+        .join('');
+    }
+
+    function addReferralCode() {
+      const input = document.getElementById('admin-new-referral-input');
+      if (!input) return;
+
+      const normalized = input.value.trim().toUpperCase().replace(/\s+/g, '');
+      if (!normalized) {
+        showToast('Enter a referral code to add.', 'error');
+        return;
+      }
+
+      if (appState.settings.referralCodes.includes(normalized)) {
+        showToast('Referral code already exists.', 'info');
+        return;
+      }
+
+      const nextCodes = [...appState.settings.referralCodes, normalized];
+      saveAdminSettingsToStorage({
+        ...appState.settings,
+        referralCodes: nextCodes,
+      });
+
+      input.value = '';
+      showToast(`Referral code "${normalized}" added.`, 'success');
+    }
+
+    function removeReferralCode(codeToRemove) {
+      const nextCodes = appState.settings.referralCodes.filter((c) => c !== codeToRemove);
+      saveAdminSettingsToStorage({
+        ...appState.settings,
+        referralCodes: nextCodes,
+      });
+      showToast(`Referral code "${codeToRemove}" removed.`, 'info');
+    }
+
     function readRegistrations() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -929,10 +1313,68 @@
       }
     }
 
+    function writeRegistrations(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
     function saveRegistration(record) {
       const all = readRegistrations();
       all.unshift(record);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+      writeRegistrations(all);
+    }
+
+    function updateRegistrationDecision(registrationNumber, decision) {
+      if (!appState.adminAuthenticated) {
+        openAdminPinModal();
+        return;
+      }
+
+      const all = readRegistrations();
+      const idx = all.findIndex((r) => r.registrationNumber === registrationNumber);
+      if (idx === -1) {
+        showToast('Registration record not found.', 'error');
+        return;
+      }
+
+      const isApproved = decision === 'approve';
+      const current = all[idx];
+      const nextPayStatus = isApproved
+        ? (current.referralVerified ? 'Waived (Referral)' : 'Verified')
+        : (current.referralVerified ? 'Waived (Referral)' : 'Rejected');
+
+      all[idx] = {
+        ...current,
+        applicationStatus: isApproved ? 'Approved' : 'Rejected',
+        paymentStatus: nextPayStatus,
+      };
+
+      writeRegistrations(all);
+      renderAdminRecords();
+      showToast(`Registration ${registrationNumber} marked as ${all[idx].applicationStatus}.`, isApproved ? 'success' : 'info');
+    }
+
+    function openScreenshotModal(registrationNumber) {
+      const all = readRegistrations();
+      const record = all.find((r) => r.registrationNumber === registrationNumber);
+      const modal = document.getElementById('screenshot-modal');
+      const img = document.getElementById('screenshot-modal-img');
+      const title = document.getElementById('screenshot-modal-title');
+
+      if (!record || !record.paymentScreenshotDataUrl || !modal || !img) {
+        showToast('No payment screenshot attached to this record.', 'info');
+        return;
+      }
+
+      if (title) {
+        title.textContent = `Payment Screenshot – ${record.fullName} (${record.registrationNumber})`;
+      }
+      img.src = record.paymentScreenshotDataUrl;
+      modal.classList.remove('hidden');
+    }
+
+    function closeScreenshotModal() {
+      const modal = document.getElementById('screenshot-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function renderReceipt(record) {
@@ -949,6 +1391,10 @@
 
       if (gridEl) {
         const subjectsText = record.subjects.map((s) => `${s.name} (${s.code})`).join(', ');
+        const feeSummary = record.referralVerified
+          ? `PKR 0 (100% Waived via ${record.referralCode})`
+          : formatPKR(record.feeAmount);
+
         gridEl.innerHTML = `
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
             <span class="text-xs text-slate-500 block">Student Name</span>
@@ -965,6 +1411,14 @@
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
             <span class="text-xs text-slate-500 block">Class / Session</span>
             <span class="font-bold text-navy-900">${record.classSession}</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="text-xs text-slate-500 block">Fee / Waiver</span>
+            <span class="font-bold text-navy-900">${feeSummary}</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="text-xs text-slate-500 block">Transaction ID</span>
+            <span class="font-mono font-bold text-navy-900">${record.transactionId || (record.referralVerified ? 'WAIVED' : '-')}</span>
           </div>
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 sm:col-span-2">
             <span class="text-xs text-slate-500 block">Selected Subjects &amp; Paper Codes</span>
@@ -1036,35 +1490,83 @@
 
     function renderAdminRecords() {
       const container = document.getElementById('admin-records-container');
+      const countBadge = document.getElementById('admin-total-count');
       if (!container) return;
 
       const records = readRegistrations();
+      if (countBadge) {
+        countBadge.textContent = `${records.length} ${records.length === 1 ? 'Record' : 'Records'}`;
+      }
+
       if (records.length === 0) {
         container.textContent = 'No student registrations found yet.';
         return;
       }
 
       container.innerHTML = records
-        .map(
-          (r) => `
-          <div class="p-4 mb-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <p class="font-bold text-navy-900">${r.fullName} <span class="font-mono text-xs text-royal-700">(${r.registrationNumber})</span></p>
-              <p class="text-xs text-slate-600">Roll: ${r.rollNumber} • ${r.classSession} • ${r.subjects.map((s) => s.code).join(', ')}</p>
+        .map((r) => {
+          const badgeClass =
+            r.applicationStatus === 'Approved'
+              ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+              : r.applicationStatus === 'Rejected'
+                ? 'bg-red-100 text-red-800 border-red-200'
+                : 'bg-amber-100 text-amber-800 border-amber-200';
+
+          const feeLabel = r.referralVerified
+            ? `Waived (${r.referralCode})`
+            : `${formatPKR(r.feeAmount)} • TxID: ${r.transactionId || '-'}`;
+
+          const screenshotBtn = r.paymentScreenshotDataUrl
+            ? `<button type="button" onclick="openScreenshotModal('${r.registrationNumber}')" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-royal-800 border border-blue-200 text-xs font-bold transition">View Screenshot</button>`
+            : '';
+
+          return `
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-bold text-navy-900">${r.fullName}</span>
+                  <span class="font-mono text-xs font-bold text-royal-700">${r.registrationNumber}</span>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">${r.applicationStatus}</span>
+                </div>
+                <p class="text-xs text-slate-600">
+                  Roll: <span class="font-mono">${r.rollNumber}</span> • ${r.classSession} • Subjects: ${r.subjects.map((s) => s.code).join(', ')}
+                </p>
+                <p class="text-xs text-slate-500">
+                  Fee: <strong>${feeLabel}</strong> • Payment Status: <strong>${r.paymentStatus}</strong>
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                ${screenshotBtn}
+                <button type="button" onclick="updateRegistrationDecision('${r.registrationNumber}', 'approve')" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                  Approve
+                </button>
+                <button type="button" onclick="updateRegistrationDecision('${r.registrationNumber}', 'reject')" class="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition">
+                  Reject
+                </button>
+              </div>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 self-start sm:self-center">
-              ${r.applicationStatus}
-            </span>
-          </div>
-        `
-        )
+          `;
+        })
         .join('');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      appState.settings = readAdminSettings();
+      applySettingsToUI();
+
       const regNumInput = document.getElementById('reg-number');
       if (regNumInput) {
         regNumInput.value = generateRegistrationNumber();
+      }
+
+      const pinInput = document.getElementById('admin-pin-input');
+      if (pinInput) {
+        pinInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            verifyAdminPin();
+          }
+        });
       }
 
       renderSubjectsGrid();
@@ -1122,7 +1624,7 @@
             studentPhotoDataUrl: appState.studentPhotoDataUrl,
             referralVerified: appState.referralVerified,
             referralCode: appState.appliedReferralCode,
-            feeAmount: appState.referralVerified ? 0 : 1500,
+            feeAmount: appState.referralVerified ? 0 : appState.settings.feeAmount,
             transactionId: '',
             paymentScreenshotDataUrl: '',
             applicationStatus: 'Pending',
@@ -1211,12 +1713,7 @@
       if (isEditable) return;
 
       e.preventDefault();
-
-      if (typeof window.openAdminPortal === 'function') {
-        window.openAdminPortal();
-      } else {
-        navigateTo('admin');
-      }
+      window.openAdminPortal();
     });
   </script>
 </body>
